@@ -1,7 +1,9 @@
 package com.example.fenglei.pullrefreshandloadmore.pullrefresh;
 
 import android.content.Context;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -34,6 +36,50 @@ public class PullRefreshLayout extends ViewGroup {
         mLoadingView = new LoadingView(context);
         ViewGroup.LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LOADING_VIEW_HEIGHT);
         addView(mLoadingView, layoutParams);
+    }
+
+    private float mLastTouchX;
+    private float mLastTouchY;
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        mLastTouchX = ev.getX();
+        mLastTouchY = ev.getY();
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if(!canChildScrollUp()) {
+                    return true;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+        }
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        float currentTouchX = ev.getX();
+        float currentTouchY = ev.getY();
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float dy = currentTouchY - mLastTouchY;
+                scrollBy(0, -(int)dy);
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+        }
+        mLastTouchX = ev.getX();
+        mLastTouchY = ev.getY();
+        return super.onTouchEvent(ev);
+    }
+
+    public boolean canChildScrollUp() {
+        return ViewCompat.canScrollVertically(mTargetView, -1);
     }
 
     @Override
